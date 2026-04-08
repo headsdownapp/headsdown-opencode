@@ -1,14 +1,15 @@
 # headsdown-opencode
 
-HeadsDown availability and task gating plugin for OpenCode.
+HeadsDown availability-awareness and task-gating plugin for OpenCode.
 
 ## What it does
 
-- Adds `headsdown_status`, `headsdown_propose`, and `headsdown_auth` tools to OpenCode
+- Adds `headsdown_status`, `headsdown_propose`, `headsdown_digest`, `headsdown_report`, and `headsdown_auth` tools to OpenCode
 - Checks HeadsDown availability before write-like tool execution
 - Allows edits immediately in `online` mode
 - Requires an approved proposal in `busy` and `limited` mode
 - Blocks edits in `offline` mode and locked contracts unless the user gives explicit permission
+- Tracks approved proposals and reports outcomes for calibration
 
 ## Install
 
@@ -29,15 +30,18 @@ Then configure OpenCode in `opencode.json`:
 
 Inside OpenCode, run the `headsdown_auth` tool and complete the Device Flow.
 
-After auth, use `headsdown_status` to confirm your current mode.
+After auth, use `headsdown_status` to confirm your current mode and availability state.
 
-## Proposal workflow
+## Proposal and outcome workflow
 
 When the user is in `busy` or `limited` mode and the agent needs to modify files:
 
 1. Call `headsdown_propose`
 2. If approved, continue the task
 3. If deferred, summarize and ask the user whether to postpone or reduce scope
+4. After completion/failure, call `headsdown_report` with the outcome
+
+Use `headsdown_digest` at session start or when asked "what did I miss?" to review updates that arrived during focus mode.
 
 ## Development
 

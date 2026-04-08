@@ -7,9 +7,7 @@ export interface GateInput {
   hasApprovedProposal: boolean;
 }
 
-export type GateDecision =
-  | { action: "allow" }
-  | { action: "deny"; reason: string };
+export type GateDecision = | { action: "allow" } | { action: "deny"; reason: string };
 
 const MODIFICATION_TOOLS = new Set(["edit", "write", "apply_patch", "multiedit", "bash"]);
 
@@ -48,15 +46,17 @@ function statusSuffix(contract: Contract): string {
 export function evaluateGate(input: GateInput): GateDecision {
   if (!isModificationTool(input.toolName, input.toolArgs)) return { action: "allow" };
   if (!input.contract || input.contract.mode === "online") return { action: "allow" };
-  if (input.hasApprovedProposal) return { action: "allow" };
 
   const suffix = statusSuffix(input.contract);
+
   if (input.contract.lock || input.contract.mode === "offline") {
     return {
       action: "deny",
       reason: `[HeadsDown] User is in ${input.contract.mode.toUpperCase()} mode${suffix}. Status is locked or user is offline. Ask for explicit permission before proceeding.`
     };
   }
+
+  if (input.hasApprovedProposal) return { action: "allow" };
 
   if (input.contract.mode === "busy" || input.contract.mode === "limited") {
     return {

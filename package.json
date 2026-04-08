@@ -28,7 +28,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@headsdown/sdk": "git+https://github.com/headsdownapp/headsdown-sdk.git#d481abc8e2bb24b2350525d3b9c8712b43a8d9de",
+    "@headsdown/sdk": "0.1.0",
     "@opencode-ai/plugin": "^1.4.0"
   },
   "devDependencies": {

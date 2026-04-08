@@ -87,6 +87,16 @@ describe("evaluateGate", () => {
     }
   });
 
+  it("denies offline mode even with approved proposal", () => {
+    const result = evaluateGate({
+      toolName: "edit",
+      toolArgs: {},
+      contract: contract("offline"),
+      hasApprovedProposal: true
+    });
+    expect(result.action).toBe("deny");
+  });
+
   it("denies locked contracts without approved proposal", () => {
     const result = evaluateGate({
       toolName: "edit",
