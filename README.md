@@ -42,7 +42,7 @@ When the user is in `busy` or `limited` mode and the agent needs to modify files
 ## Development
 
 ```bash
-cd opencode
+cd headsdown-opencode
 npm install
 npm run build
 npm test
