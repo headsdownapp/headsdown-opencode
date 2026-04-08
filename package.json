@@ -1,0 +1,39 @@
+{
+  "name": "headsdown-opencode",
+  "version": "0.1.0",
+  "description": "HeadsDown availability and focus-mode gating plugin for OpenCode.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/headsdownapp/headsdown-opencode.git"
+  },
+  "homepage": "https://github.com/headsdownapp/headsdown-opencode#readme",
+  "bugs": {
+    "url": "https://github.com/headsdownapp/headsdown-opencode/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@headsdown/sdk": "git+https://github.com/headsdownapp/headsdown-sdk.git#d481abc8e2bb24b2350525d3b9c8712b43a8d9de",
+    "@opencode-ai/plugin": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
