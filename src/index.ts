@@ -15,6 +15,51 @@ async function getAuthenticatedClient(): Promise<HeadsDownClient> {
   }
 }
 
+function buildWrapUpInstruction(
+  guidance:
+    | {
+        active?: boolean;
+        selectedMode?: "auto" | "wrap_up" | "full_depth";
+        remainingMinutes?: number | null;
+        reason?: string;
+        hints?: string[];
+      }
+    | null
+    | undefined,
+): string | null {
+  if (!guidance || !guidance.active) {
+    return null;
+  }
+
+  let instruction = "";
+  if (guidance.selectedMode === "wrap_up") {
+    instruction =
+      "Execution policy for this task: keep scope minimal, avoid starting new refactors, finish the current slice cleanly, and include clear handoff notes for deferred work.";
+  } else if (guidance.selectedMode === "full_depth") {
+    instruction =
+      "Execution policy for this task: proceed with full implementation depth, include robust validation and tests, and do not shrink scope only because a deadline is near.";
+  } else {
+    instruction =
+      "Execution policy for this task: follow the provided context to balance scope and depth, stay focused on the requested outcome, and avoid unnecessary expansion.";
+  }
+
+  const context: string[] = [];
+
+  if (typeof guidance.remainingMinutes === "number") {
+    context.push(`About ${guidance.remainingMinutes} minutes remain before the attention deadline.`);
+  }
+
+  if (guidance.reason) {
+    context.push(`Reason: ${guidance.reason}`);
+  }
+
+  if (guidance.hints && guidance.hints.length > 0) {
+    context.push(`Hints: ${guidance.hints.join("; ")}`);
+  }
+
+  return [instruction, ...context].join(" ");
+}
+
 function formatAvailabilitySummary(contract: Contract | null, availability: ScheduleResolution): string {
   const parts: string[] = [];
 
@@ -53,6 +98,11 @@ function formatAvailabilitySummary(contract: Contract | null, availability: Sche
     parts.push(`Wrap-Up guidance: ${timing} (${availability.wrapUpGuidance.selectedMode})`);
   }
 
+  const wrapUpInstruction = buildWrapUpInstruction(availability.wrapUpGuidance);
+  if (wrapUpInstruction) {
+    parts.push(`Wrap-Up instruction: ${wrapUpInstruction}`);
+  }
+
   if (availability.nextWindow) {
     parts.push(`Next availability window: ${availability.nextWindow.label} (${availability.nextWindow.mode})`);
   }
@@ -76,12 +126,14 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
         async execute() {
           const client = await getAuthenticatedClient();
           const { contract, schedule: availability } = await client.getAvailability();
+          const wrapUpInstruction = buildWrapUpInstruction(availability.wrapUpGuidance);
           return JSON.stringify(
             {
               authenticated: true,
               contract,
               availability,
-              summary: formatAvailabilitySummary(contract, availability)
+              summary: formatAvailabilitySummary(contract, availability),
+              wrapUpInstruction
             },
             null,
             2
@@ -135,13 +187,15 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
             }
           }
 
+          const wrapUpInstruction = buildWrapUpInstruction(verdict.wrapUpGuidance);
           return JSON.stringify(
             {
               decision: verdict.decision,
               reason: verdict.reason,
               proposalId: verdict.proposalId,
               evaluatedAt: verdict.evaluatedAt,
-              wrapUpGuidance: verdict.wrapUpGuidance
+              wrapUpGuidance: verdict.wrapUpGuidance,
+              wrapUpInstruction
             },
             null,
             2
