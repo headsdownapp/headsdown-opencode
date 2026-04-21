@@ -7,7 +7,7 @@ describe("OpenCode HeadsDown plugin source", () => {
     const source = await readFile(join(import.meta.dirname, "..", "src", "index.ts"), "utf8");
 
     expect(source).toContain("Execution policy for this task");
-    expect(source).toContain("buildWrapUpInstruction");
+    expect(source).toContain("resolveExecutionInstruction");
     expect(source).toContain("wrapUpInstruction");
   });
 
@@ -16,5 +16,6 @@ describe("OpenCode HeadsDown plugin source", () => {
 
     expect(source).toContain("delivery_mode");
     expect(source).toContain("deliveryMode: args.delivery_mode");
+    expect(source).toContain("describeExecutionDirective");
   });
 });

@@ -1,5 +1,6 @@
+import * as HeadsDownSDK from "@headsdown/sdk";
 import { CalibrationTracker, ConfigStore, HeadsDownClient, ProposalStateStore } from "@headsdown/sdk";
-import type { Contract, ScheduleResolution } from "@headsdown/sdk";
+import type { Contract, ScheduleResolution, Verdict } from "@headsdown/sdk";
 import { type Plugin, tool } from "@opencode-ai/plugin";
 import { evaluateGate } from "./policy.js";
 
@@ -15,18 +16,27 @@ async function getAuthenticatedClient(): Promise<HeadsDownClient> {
   }
 }
 
-function buildWrapUpInstruction(
-  guidance:
-    | {
-        active?: boolean;
-        selectedMode?: "auto" | "wrap_up" | "full_depth";
-        remainingMinutes?: number | null;
-        reason?: string;
-        hints?: string[];
-      }
-    | null
-    | undefined,
-): string | null {
+function resolveExecutionInstruction(input: {
+  contract?: Contract | null;
+  schedule?: ScheduleResolution | null;
+  verdict?: Pick<Verdict, "decision" | "reason" | "wrapUpGuidance"> | null;
+}): string | null {
+  const describeExecutionDirective = (
+    HeadsDownSDK as unknown as {
+      describeExecutionDirective?: (value: {
+        contract?: Contract | null;
+        schedule?: ScheduleResolution | null;
+        verdict?: Pick<Verdict, "decision" | "reason" | "wrapUpGuidance"> | null;
+      }) => { primaryDirective?: string };
+    }
+  ).describeExecutionDirective;
+
+  if (typeof describeExecutionDirective === "function") {
+    const directive = describeExecutionDirective(input);
+    return directive.primaryDirective ?? null;
+  }
+
+  const guidance = input.verdict?.wrapUpGuidance ?? input.schedule?.wrapUpGuidance;
   if (!guidance || !guidance.active) {
     return null;
   }
@@ -98,7 +108,10 @@ function formatAvailabilitySummary(contract: Contract | null, availability: Sche
     parts.push(`Wrap-Up guidance: ${timing} (${availability.wrapUpGuidance.selectedMode})`);
   }
 
-  const wrapUpInstruction = buildWrapUpInstruction(availability.wrapUpGuidance);
+  const wrapUpInstruction = resolveExecutionInstruction({
+    contract,
+    schedule: availability,
+  });
   if (wrapUpInstruction) {
     parts.push(`Wrap-Up instruction: ${wrapUpInstruction}`);
   }
@@ -126,7 +139,10 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
         async execute() {
           const client = await getAuthenticatedClient();
           const { contract, schedule: availability } = await client.getAvailability();
-          const wrapUpInstruction = buildWrapUpInstruction(availability.wrapUpGuidance);
+          const wrapUpInstruction = resolveExecutionInstruction({
+            contract,
+            schedule: availability,
+          });
           return JSON.stringify(
             {
               authenticated: true,
@@ -187,7 +203,13 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
             }
           }
 
-          const wrapUpInstruction = buildWrapUpInstruction(verdict.wrapUpGuidance);
+          const wrapUpInstruction = resolveExecutionInstruction({
+            verdict: {
+              decision: verdict.decision,
+              reason: verdict.reason,
+              wrapUpGuidance: verdict.wrapUpGuidance,
+            },
+          });
           return JSON.stringify(
             {
               decision: verdict.decision,
