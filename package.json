@@ -28,7 +28,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@headsdown/sdk": "0.1.0",
+    "@headsdown/sdk": "^0.2.12",
     "@opencode-ai/plugin": "^1.4.0"
   },
   "devDependencies": {
