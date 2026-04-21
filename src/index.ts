@@ -47,6 +47,12 @@ function formatAvailabilitySummary(contract: Contract | null, availability: Sche
     parts.push(`Active availability window: ${availability.activeWindow.label} (${availability.activeWindow.mode})`);
   }
 
+  if (availability.wrapUpGuidance?.active) {
+    const remaining = availability.wrapUpGuidance.remainingMinutes;
+    const timing = typeof remaining === "number" ? `${remaining}m remaining` : "active";
+    parts.push(`Wrap-Up guidance: ${timing} (${availability.wrapUpGuidance.selectedMode})`);
+  }
+
   if (availability.nextWindow) {
     parts.push(`Next availability window: ${availability.nextWindow.label} (${availability.nextWindow.mode})`);
   }
@@ -89,7 +95,8 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
           estimated_files: tool.schema.number().int().positive().optional(),
           estimated_minutes: tool.schema.number().int().positive().optional(),
           scope_summary: tool.schema.string().min(3).optional(),
-          source_ref: tool.schema.string().min(2).optional()
+          source_ref: tool.schema.string().min(2).optional(),
+          delivery_mode: tool.schema.enum(["auto", "wrap_up", "full_depth"]).optional()
         },
         async execute(args) {
           const client = await getAuthenticatedClient();
@@ -100,7 +107,8 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
             estimatedFiles: args.estimated_files,
             estimatedMinutes: args.estimated_minutes,
             scopeSummary: args.scope_summary,
-            sourceRef: args.source_ref
+            sourceRef: args.source_ref,
+            deliveryMode: args.delivery_mode
           });
 
           if (verdict.decision === "approved") {
@@ -132,7 +140,8 @@ export const HeadsDownOpenCodePlugin: Plugin = async () => {
               decision: verdict.decision,
               reason: verdict.reason,
               proposalId: verdict.proposalId,
-              evaluatedAt: verdict.evaluatedAt
+              evaluatedAt: verdict.evaluatedAt,
+              wrapUpGuidance: verdict.wrapUpGuidance
             },
             null,
             2
