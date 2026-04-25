@@ -1,4 +1,4 @@
-# headsdown-opencode
+# @headsdown/opencode
 
 HeadsDown availability-awareness and task-gating plugin for OpenCode.
 
@@ -15,7 +15,7 @@ HeadsDown availability-awareness and task-gating plugin for OpenCode.
 ## Install
 
 ```bash
-npm install headsdown-opencode
+npm install @headsdown/opencode
 ```
 
 Then configure OpenCode in `opencode.json` (published npm mode):
@@ -23,17 +23,17 @@ Then configure OpenCode in `opencode.json` (published npm mode):
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["headsdown-opencode", "headsdown-opencode/tui"]
+  "plugin": ["@headsdown/opencode", "@headsdown/opencode/tui"]
 }
 ```
 
-`headsdown-opencode` loads server-side policy hooks and tools.
-`headsdown-opencode/tui` adds TUI-only status toasts and command palette actions.
+`@headsdown/opencode` loads server-side policy hooks and tools.
+`@headsdown/opencode/tui` adds TUI-only status toasts and command palette actions.
 
 Why two plugins?
 
 - OpenCode uses separate plugin surfaces for runtime/server behavior and TUI behavior.
-- This package exports both surfaces (`headsdown-opencode` and `headsdown-opencode/tui`) so each can be loaded in the correct place.
+- This package exports both surfaces (`@headsdown/opencode` and `@headsdown/opencode/tui`) so each can be loaded in the correct place.
 
 ## First-time auth
 
@@ -75,7 +75,7 @@ npm test
 Use `scripts/toggle-headsdown-plugin.sh` from a target OpenCode project to switch between:
 
 - `local`: loads this repo's built files through local shims (`.opencode/plugins`)
-- `published`: loads `headsdown-opencode` and `headsdown-opencode/tui` from npm in `opencode.json`
+- `published`: loads `@headsdown/opencode` and `@headsdown/opencode/tui` from npm in `opencode.json`
 
 In `local` mode, `opencode.json` may keep an empty `plugin` array while local shims are used.
 
