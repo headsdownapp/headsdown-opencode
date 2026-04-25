@@ -18,7 +18,7 @@ HeadsDown availability-awareness and task-gating plugin for OpenCode.
 npm install headsdown-opencode
 ```
 
-Then configure OpenCode in `opencode.json`:
+Then configure OpenCode in `opencode.json` (published npm mode):
 
 ```json
 {
@@ -29,6 +29,11 @@ Then configure OpenCode in `opencode.json`:
 
 `headsdown-opencode` loads server-side policy hooks and tools.
 `headsdown-opencode/tui` adds TUI-only status toasts and command palette actions.
+
+Why two plugins?
+
+- OpenCode uses separate plugin surfaces for runtime/server behavior and TUI behavior.
+- This package exports both surfaces (`headsdown-opencode` and `headsdown-opencode/tui`) so each can be loaded in the correct place.
 
 ## First-time auth
 
@@ -54,6 +59,7 @@ The TUI plugin adds:
 - `HeadsDown: Refresh policy` command (`/headsdown-policy-refresh`)
 - `HeadsDown: Show policy` command (`/headsdown-policy`)
 - Transition toasts when mode changes or Wrap-Up/lock state becomes active
+- Note: this plugin currently does not add a persistent sidebar panel.
 
 ## Development
 
@@ -62,6 +68,21 @@ cd headsdown-opencode
 npm install
 npm run build
 npm test
+```
+
+### Local plugin toggle helper
+
+Use `scripts/toggle-headsdown-plugin.sh` from a target OpenCode project to switch between:
+
+- `local`: loads this repo's built files through local shims (`.opencode/plugins`)
+- `published`: loads `headsdown-opencode` and `headsdown-opencode/tui` from npm in `opencode.json`
+
+In `local` mode, `opencode.json` may keep an empty `plugin` array while local shims are used.
+
+Example:
+
+```bash
+./scripts/toggle-headsdown-plugin.sh local
 ```
 
 ## License
