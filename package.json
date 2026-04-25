@@ -1,7 +1,14 @@
 {
   "name": "@headsdown/opencode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "HeadsDown availability and focus-mode gating plugin for OpenCode.",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "headsdown",
+    "availability",
+    "focus"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

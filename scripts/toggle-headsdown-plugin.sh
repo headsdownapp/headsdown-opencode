@@ -59,10 +59,16 @@ if (!Array.isArray(config.plugin)) config.plugin = [];
 
 config.plugin = config.plugin.filter((entry) => {
   if (typeof entry === "string") {
-    return entry !== "headsdown-opencode" && entry !== "headsdown-opencode/tui";
+    return entry !== "headsdown-opencode" &&
+      entry !== "headsdown-opencode/tui" &&
+      entry !== "@headsdown/opencode" &&
+      entry !== "@headsdown/opencode/tui";
   }
   if (Array.isArray(entry) && typeof entry[0] === "string") {
-    return entry[0] !== "headsdown-opencode" && entry[0] !== "headsdown-opencode/tui";
+    return entry[0] !== "headsdown-opencode" &&
+      entry[0] !== "headsdown-opencode/tui" &&
+      entry[0] !== "@headsdown/opencode" &&
+      entry[0] !== "@headsdown/opencode/tui";
   }
   return true;
 });
@@ -90,15 +96,21 @@ if (!Array.isArray(config.plugin)) config.plugin = [];
 
 config.plugin = config.plugin.filter((entry) => {
   if (typeof entry === "string") {
-    return entry !== "headsdown-opencode" && entry !== "headsdown-opencode/tui";
+    return entry !== "headsdown-opencode" &&
+      entry !== "headsdown-opencode/tui" &&
+      entry !== "@headsdown/opencode" &&
+      entry !== "@headsdown/opencode/tui";
   }
   if (Array.isArray(entry) && typeof entry[0] === "string") {
-    return entry[0] !== "headsdown-opencode" && entry[0] !== "headsdown-opencode/tui";
+    return entry[0] !== "headsdown-opencode" &&
+      entry[0] !== "headsdown-opencode/tui" &&
+      entry[0] !== "@headsdown/opencode" &&
+      entry[0] !== "@headsdown/opencode/tui";
   }
   return true;
 });
 
-config.plugin.push("headsdown-opencode", "headsdown-opencode/tui");
+config.plugin.push("@headsdown/opencode", "@headsdown/opencode/tui");
 
 fs.writeFileSync(file, JSON.stringify(config, null, 2) + "\n");
 ' "$CONFIG_FILE"
