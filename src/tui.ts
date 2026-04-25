@@ -7,6 +7,37 @@ const LAST_STATE_KEY = "headsdown.tui.last_state";
 const STATUS_LINE_KEY = "headsdown.tui.status_line";
 const AUTH_TOAST_KEY = "headsdown.tui.auth_toast";
 
+type RuntimeTuiApi = {
+  ui: { toast: (toast: TuiToast) => void };
+  kv: {
+    get: <T>(key: string, defaultValue: T) => T;
+    set: (key: string, value: unknown) => void;
+  };
+  command: { register: (factory: () => unknown[]) => () => void };
+  event: { on: (name: string, handler: (event: any) => void) => () => void };
+  lifecycle: { onDispose: (handler: () => void) => void };
+};
+
+function resolveRuntimeApi(api: unknown): RuntimeTuiApi | null {
+  if (!api || typeof api !== "object") return null;
+
+  const candidate = api as Partial<RuntimeTuiApi>;
+
+  if (
+    typeof candidate.ui?.toast !== "function" ||
+    !candidate.kv ||
+    typeof candidate.kv.get !== "function" ||
+    typeof candidate.kv.set !== "function" ||
+    typeof candidate.command?.register !== "function" ||
+    typeof candidate.event?.on !== "function" ||
+    typeof candidate.lifecycle?.onDispose !== "function"
+  ) {
+    return null;
+  }
+
+  return candidate as RuntimeTuiApi;
+}
+
 export type PolicyUiState = {
   mode: Contract["mode"] | "unknown";
   lock: boolean;
@@ -98,16 +129,21 @@ function toToast(message: string, variant: TuiToast["variant"] = "info"): TuiToa
 }
 
 export const HeadsDownOpenCodeTuiPlugin: TuiPlugin = async (api) => {
-  const notify = (toast: TuiToast) => api.ui.toast(toast);
+  const runtimeApi = resolveRuntimeApi(api);
+  if (!runtimeApi) {
+    return;
+  }
+
+  const notify = (toast: TuiToast) => runtimeApi.ui.toast(toast);
 
   const readLastState = (): PolicyUiState | null => {
-    const raw = api.kv.get<string | undefined>(LAST_STATE_KEY, undefined);
+    const raw = runtimeApi.kv.get<string | undefined>(LAST_STATE_KEY, undefined);
     return safeJsonParse(raw);
   };
 
   const writeLastState = (state: PolicyUiState): void => {
-    api.kv.set(LAST_STATE_KEY, JSON.stringify(state));
-    api.kv.set(STATUS_LINE_KEY, formatStatusLine(state));
+    runtimeApi.kv.set(LAST_STATE_KEY, JSON.stringify(state));
+    runtimeApi.kv.set(STATUS_LINE_KEY, formatStatusLine(state));
   };
 
   const refreshPolicy = async (announce = false): Promise<void> => {
@@ -115,16 +151,16 @@ export const HeadsDownOpenCodeTuiPlugin: TuiPlugin = async (api) => {
     try {
       client = await HeadsDownClient.fromCredentials();
     } catch {
-      const alreadyNotified = api.kv.get<boolean>(AUTH_TOAST_KEY, false);
+      const alreadyNotified = runtimeApi.kv.get<boolean>(AUTH_TOAST_KEY, false);
       if (!alreadyNotified) {
         notify(toToast("HeadsDown is not authenticated. Run headsdown_auth to enable live policy hints.", "warning"));
-        api.kv.set(AUTH_TOAST_KEY, true);
+        runtimeApi.kv.set(AUTH_TOAST_KEY, true);
       }
-      api.kv.set(STATUS_LINE_KEY, "AUTH REQUIRED");
+      runtimeApi.kv.set(STATUS_LINE_KEY, "AUTH REQUIRED");
       return;
     }
 
-    api.kv.set(AUTH_TOAST_KEY, false);
+    runtimeApi.kv.set(AUTH_TOAST_KEY, false);
 
     const { contract, schedule } = await client.getAvailability();
     const nextState = derivePolicyUiState(contract, schedule);
@@ -143,9 +179,9 @@ export const HeadsDownOpenCodeTuiPlugin: TuiPlugin = async (api) => {
     }
   };
 
-  const unregisterCommands = api.command.register(() => {
+  const unregisterCommands = runtimeApi.command.register(() => {
     const current = readLastState();
-    const statusLine = api.kv.get<string>(STATUS_LINE_KEY, "UNKNOWN");
+    const statusLine = runtimeApi.kv.get<string>(STATUS_LINE_KEY, "UNKNOWN");
     return [
       {
         title: "HeadsDown: Refresh policy",
@@ -176,7 +212,7 @@ export const HeadsDownOpenCodeTuiPlugin: TuiPlugin = async (api) => {
     ];
   });
 
-  const disposeSessionStatus = api.event.on("session.status", (event) => {
+  const disposeSessionStatus = runtimeApi.event.on("session.status", (event) => {
     if (event.properties.status.type === "idle") {
       void refreshPolicy(false);
     }
@@ -186,7 +222,7 @@ export const HeadsDownOpenCodeTuiPlugin: TuiPlugin = async (api) => {
     void refreshPolicy(false);
   }, POLICY_POLL_INTERVAL_MS);
 
-  api.lifecycle.onDispose(() => {
+  runtimeApi.lifecycle.onDispose(() => {
     (globalThis as unknown as { clearInterval: (handle: unknown) => void }).clearInterval(intervalHandle);
     disposeSessionStatus();
     unregisterCommands();

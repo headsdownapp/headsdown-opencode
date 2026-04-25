@@ -1,6 +1,6 @@
 {
   "name": "@headsdown/opencode",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "HeadsDown availability and focus-mode gating plugin for OpenCode.",
   "keywords": [
     "opencode",

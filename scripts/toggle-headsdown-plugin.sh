@@ -44,12 +44,9 @@ if [[ "$MODE" == "local" ]]; then
   cat > "$SERVER_SHIM" <<EOF
 import plugin from "$PLUGIN_REPO/dist/index.js";
 export const HeadsDownLocalServerPlugin = plugin;
+export default plugin;
 EOF
-
-  cat > "$TUI_SHIM" <<EOF
-import plugin from "$PLUGIN_REPO/dist/tui.js";
-export const HeadsDownLocalTuiPlugin = plugin;
-EOF
+  rm -f "$TUI_SHIM"
 
   node -e '
 const fs = require("fs");
@@ -78,7 +75,7 @@ fs.writeFileSync(file, JSON.stringify(config, null, 2) + "\n");
 
   echo "Switched to LOCAL plugin mode."
   echo "- Created/updated: $SERVER_SHIM"
-  echo "- Created/updated: $TUI_SHIM"
+  echo "- Removed TUI shim (local plugin auto-loading treats it as server-only): $TUI_SHIM"
   echo "- Removed published headsdown entries from: $CONFIG_FILE"
   echo "- Backup: $BACKUP_FILE"
   echo
