@@ -4,11 +4,12 @@ HeadsDown availability-awareness and task-gating plugin for OpenCode.
 
 ## What it does
 
-- Adds `headsdown_status`, `headsdown_propose`, `headsdown_digest`, `headsdown_report`, and `headsdown_auth` tools to OpenCode
-- Checks HeadsDown availability before write-like tool execution
-- Allows edits immediately in `online` mode
-- Requires an approved proposal in `busy` and `limited` mode
-- Blocks edits in `offline` mode and locked contracts unless the user gives explicit permission
+- Adds `headsdown_policy`, `headsdown_approve`, `headsdown_digest`, `headsdown_outcome`, and `headsdown_auth` tools to OpenCode
+- Injects HeadsDown execution guidance into system prompts on every turn
+- Enforces policy through both permission mediation and pre-tool hard gates
+- Applies mode-aware model shaping via `chat.params`, `chat.headers`, and `shell.env`
+- Shapes tool definitions with mode-aware HeadsDown constraints
+- Persists policy context during session compaction and can disable auto-continue in strict Wrap-Up windows
 - Tracks approved proposals and reports outcomes for calibration
 
 ## Install
@@ -22,26 +23,37 @@ Then configure OpenCode in `opencode.json`:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["headsdown-opencode"]
+  "plugin": ["headsdown-opencode", "headsdown-opencode/tui"]
 }
 ```
+
+`headsdown-opencode` loads server-side policy hooks and tools.
+`headsdown-opencode/tui` adds TUI-only status toasts and command palette actions.
 
 ## First-time auth
 
 Inside OpenCode, run the `headsdown_auth` tool and complete the Device Flow.
 
-After auth, use `headsdown_status` to confirm your current mode and availability state.
+After auth, use `headsdown_policy` to confirm your current mode, schedule state, and execution guidance.
 
 ## Proposal and outcome workflow
 
 When the user is in `busy` or `limited` mode and the agent needs to modify files:
 
-1. Call `headsdown_propose`
+1. Call `headsdown_approve`
 2. If approved, continue the task
 3. If deferred, summarize and ask the user whether to postpone or reduce scope
-4. After completion/failure, call `headsdown_report` with the outcome
+4. After completion/failure, call `headsdown_outcome` with the outcome
 
 Use `headsdown_digest` at session start or when asked "what did I miss?" to review updates that arrived during focus mode.
+
+## TUI features
+
+The TUI plugin adds:
+
+- `HeadsDown: Refresh policy` command (`/headsdown-policy-refresh`)
+- `HeadsDown: Show policy` command (`/headsdown-policy`)
+- Transition toasts when mode changes or Wrap-Up/lock state becomes active
 
 ## Development
 

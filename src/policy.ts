@@ -61,7 +61,7 @@ export function evaluateGate(input: GateInput): GateDecision {
   if (input.contract.mode === "busy" || input.contract.mode === "limited") {
     return {
       action: "deny",
-      reason: `[HeadsDown] User is in ${input.contract.mode.toUpperCase()} mode${suffix}. Submit a task proposal with headsdown_propose before modifying files.`
+      reason: `[HeadsDown] User is in ${input.contract.mode.toUpperCase()} mode${suffix}. Submit a task proposal with headsdown_approve before modifying files.`
     };
   }
 

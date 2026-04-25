@@ -59,7 +59,7 @@ describe("evaluateGate", () => {
     expect(result.action).toBe("deny");
     if (result.action === "deny") {
       expect(result.reason).toContain("BUSY");
-      expect(result.reason).toContain("headsdown_propose");
+      expect(result.reason).toContain("headsdown_approve");
     }
   });
 
