@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { PolicyUiState } from "../src/tui.js";
-import { detectPolicyTransitions } from "../src/tui.js";
+import type { PolicyUiState } from "../dist/tui.js";
+import { detectPolicyTransitions } from "../dist/tui.js";
 
 function state(overrides: Partial<PolicyUiState> = {}): PolicyUiState {
   return {

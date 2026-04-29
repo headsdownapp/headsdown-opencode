@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Contract } from "@headsdown/sdk";
-import { evaluateGate, isModificationTool } from "../src/policy.js";
+import { evaluateGate, isModificationTool } from "../dist/policy.js";
 
 function contract(mode: Contract["mode"], overrides: Partial<Contract> = {}): Contract {
   return {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Contract, ScheduleResolution } from "@headsdown/sdk";
-import { shouldDisableAutoContinue } from "../src/index.js";
+import { shouldDisableAutoContinue } from "../dist/index.js";
 
 function contract(mode: Contract["mode"], overrides: Partial<Contract> = {}): Contract {
   return {

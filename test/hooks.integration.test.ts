@@ -11,7 +11,7 @@ import {
   type ChatParamsOutput,
   type PolicySnapshot,
   type ShellEnvOutput,
-} from "../src/index.js";
+} from "../dist/index.js";
 
 function contract(mode: Contract["mode"], overrides: Partial<Contract> = {}): Contract {
   return {
