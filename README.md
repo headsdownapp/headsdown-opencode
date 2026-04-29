@@ -70,6 +70,19 @@ npm run build
 npm test
 ```
 
+### Build output bundling
+
+The published `dist/index.js` and `dist/tui.js` files are bundled with esbuild. This keeps `@headsdown/sdk` inlined in the distributed artifacts so consumers do not pull it as a transitive runtime dependency.
+
+Build commands:
+
+```bash
+esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --external:@opencode-ai/plugin
+esbuild src/tui.ts --bundle --platform=node --format=esm --outfile=dist/tui.js --external:@opencode-ai/plugin
+```
+
+`@opencode-ai/plugin` stays external because it is provided by the OpenCode host at runtime.
+
 ### Local plugin toggle helper
 
 Use `scripts/toggle-headsdown-plugin.sh` from a target OpenCode project to switch between:
