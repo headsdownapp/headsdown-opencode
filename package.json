@@ -53,7 +53,7 @@
     "@opencode-ai/plugin": "^1.14.25"
   },
   "devDependencies": {
-    "@headsdown/sdk": "^0.2.14",
+    "@headsdown/sdk": "^0.11.0",
     "@types/node": "^25.6.0",
     "esbuild": "^0.28.0",
     "typescript": "^6.0.3",
